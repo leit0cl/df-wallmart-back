@@ -1,0 +1,5 @@
+FROM mongo
+
+COPY productos.json /productos.json
+
+CMD mongoimport --host mongodb --user productListUser --pass productListPassword --db promotions --collection products --type json --file /productos.json --jsonArray

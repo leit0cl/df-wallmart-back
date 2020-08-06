@@ -25,16 +25,35 @@ services:
         networks:
             webappnetwork
     mongodb:
-        image: mongo
+        image: mongo:3.6.8
+        environment: 
+            - MONGO_INITDB_DATABASE:'promotions'
+            - MONGO_INITDB_ROOT_USERNAME:'productListUser'
+            - MONGO_INITDB_ROOT_PASSWORD:'productListPassword'
         restart: always
         container_name: mongodb
         volumes:
         - ./data-node:/data/db
+        - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
         ports:
         - 27017:27017
-        command: mongod --noauth --smallfiles
+        command: mongod --smallfiles
         networks:
         - webappnetwork
+        mongo_seed:
+            image: mongo:3.6.8
+            links:
+              - mongodb
+            volumes:
+              - ./mongo-seed:/mongo-seed
+            command:
+            - /mongo-seed/import.sh
+    mongo_seed:
+        build: mongo-seed/.
+        links:
+        - mongodb
+        networks:
+            webappnetwork
 networks:
     webappnetwork:
         driver: bridge
